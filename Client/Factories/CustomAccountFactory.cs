@@ -57,12 +57,8 @@ namespace FileTransferService.Spa.Hosted.Client.Factories
                                 user.OfficeLocation ?? "Not set"));
                         }
 
-                        Console.WriteLine($"Oid: {account?.Oid}");
-
                         var requestMemberOf = client.Users[account?.Oid].MemberOf;
-                        var memberships = await requestMemberOf.GetAsync();     //.Request().GetAsync();
-
-                        Console.WriteLine($"Membership count: {memberships?.Value?.Count}");
+                        var memberships = await requestMemberOf.GetAsync();
 
                         if (memberships is not null && memberships.Value is not null)
                         {
@@ -70,7 +66,6 @@ namespace FileTransferService.Spa.Hosted.Client.Factories
                             {
                                 if (entry.OdataType == "#microsoft.graph.group" && entry.Id is not null)
                                 {
-                                    Console.WriteLine($"Group Id: {entry.Id}");
                                     userIdentity.AddClaim(
                                         new Claim("directoryGroup", entry.Id));
                                 }

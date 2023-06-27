@@ -6,16 +6,10 @@
 
         public void Report(long value)
         {
-            Console.WriteLine($"Raw value from report: {value}");
-            Console.WriteLine($"File size from report: {FileSize}");
             decimal decValue = value;
             decimal decFileSize = FileSize;
-
             decimal rawCalculatedValue = decValue / decFileSize * 100;
-            Console.WriteLine($"rawCalculatedValue: {rawCalculatedValue}");
-
             int calculatedPercentage = (int)Math.Floor(rawCalculatedValue);
-            Console.WriteLine($"calculatedPercentage: {rawCalculatedValue}");
 
             ProgressUpdatedEventArgs progressUpdatedEventArgs = new ProgressUpdatedEventArgs
             {

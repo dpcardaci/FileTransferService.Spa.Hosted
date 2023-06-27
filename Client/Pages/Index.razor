@@ -69,9 +69,6 @@
     private HttpClient? httpClient;
     private AppSettings? appSettings;
 
-    private WeatherForecast[]? forecasts;
-    private string? testString = "";
-
     private long maxFileSize = 1099511627776;
     private bool exceedsMaxFileSize = false;
 
@@ -111,7 +108,6 @@
 
     private void OnFileSelectionChange(InputFileChangeEventArgs e)
     {
-        Console.WriteLine("File selected", e.File.Name);
         isValid = Validate(e.File);
         if (isValid)
         {
