@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/b2d15857-1062-49c1-afd3-82c1079dce10/resourceGroups/rg-fts-dev/providers/Microsoft.Web/sites/ftsdevportalapp",
+    "appService.deploySubpath": "Server\\bin\\Release\\net7.0\\publish"
+}

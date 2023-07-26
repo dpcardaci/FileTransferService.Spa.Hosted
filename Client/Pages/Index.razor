@@ -21,8 +21,14 @@
 
     @if (isUploading)
     {
-        <div class="progress mb-3">
-            <div class="progress-bar" style="width: @progressValue">@progressValue</div>
+
+        <div class="mb-3">
+            <div class="progress">
+                <div class="progress-bar" style="width: @progressValue">@progressValue</div>
+            </div>
+            <div class="text-end small text-secondary">
+                <span>@bytesTransferred of @currentSelectedFileSize</span>
+            </div>
         </div>
     }
 
@@ -75,6 +81,9 @@
     private bool isValid = false;
     private bool isUploading = false;
     private string progressValue = "0%";
+    private string bytesTransferred = "0";
+    private string currentSelectedFileSize = "0";
+
     private Timer DelayedHideProgressBarTimer = new Timer
         {
             Interval = 2000,
@@ -94,7 +103,8 @@
 
     private void OnProgressUpdated(Object sender, ProgressUpdatedEventArgs e)
     {
-        progressValue = e.FormattedStringValue;
+        bytesTransferred = e.BytesTransferred.ToString();
+        progressValue = e.PercentageAsFormattedString;
         StateHasChanged();
     }
 
@@ -102,6 +112,8 @@
     {
         isUploading = false;
         progressValue = "0%";
+        bytesTransferred = "0";
+        currentSelectedFileSize = "0";
         StateHasChanged();
         DelayedHideProgressBarTimer.Stop();
     }
@@ -111,6 +123,7 @@
         isValid = Validate(e.File);
         if (isValid)
         {
+            currentSelectedFileSize = e.File.Size.ToString();
             currentFile = e.File;
         }
     }
@@ -151,9 +164,9 @@
                         },
                         TransferOptions = new StorageTransferOptions
                         {
-                            InitialTransferSize = 1024 * 1024 * 90,
+                            InitialTransferSize = 1024 * 1024 * 20,
                             MaximumConcurrency = 20,
-                            MaximumTransferSize = 1024 * 1024 * 90
+                            MaximumTransferSize = 1024 * 1024 * 20
                         },
                         ProgressHandler = uploadProgressHandler
                     };

@@ -13,8 +13,9 @@
 
             ProgressUpdatedEventArgs progressUpdatedEventArgs = new ProgressUpdatedEventArgs
             {
-                NumericValue = calculatedPercentage,
-                FormattedStringValue = $"{calculatedPercentage}%"
+                BytesTransferred = value,
+                PercentageAsNumber = calculatedPercentage,
+                PercentageAsFormattedString = $"{calculatedPercentage}%"
             };
             OnProgressUpdated(progressUpdatedEventArgs);
         }
@@ -37,8 +38,9 @@
 
     public class ProgressUpdatedEventArgs
     {
-        public int NumericValue { get; set; } = 0;
-        public string FormattedStringValue { get; set; } = "0%";
+        public long BytesTransferred { get; set; } = 0;
+        public int PercentageAsNumber { get; set; } = 0;
+        public string PercentageAsFormattedString { get; set; } = "0%";
     }
 
     public delegate void ProgressUpdatedEventHandler(Object sender, ProgressUpdatedEventArgs e);
