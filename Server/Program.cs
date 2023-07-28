@@ -2,8 +2,22 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Identity.Web;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+string? appConfigurationConnString = builder.Configuration.GetSection("AppConfigurationConnString").Value;
+if (appConfigurationConnString != null)
+{
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
+        options.Connect(appConfigurationConnString)
+            .ConfigureKeyVault(kv =>
+            {
+                kv.SetCredential(new DefaultAzureCredential());
+            });
+    });
+}
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
