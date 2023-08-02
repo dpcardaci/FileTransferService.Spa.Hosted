@@ -14,7 +14,12 @@ if (appConfigurationConnString != null)
         options.Connect(appConfigurationConnString)
             .ConfigureKeyVault(kv =>
             {
-                kv.SetCredential(new DefaultAzureCredential());
+                kv.SetCredential(new DefaultAzureCredential(
+                        new DefaultAzureCredentialOptions
+                        {
+                            AuthorityHost = AzureAuthorityHosts.AzureGovernment
+                        }
+                    ));
             });
     });
 }

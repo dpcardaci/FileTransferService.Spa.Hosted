@@ -25,7 +25,7 @@ public class AppSettingsController : ControllerBase
     {
         return new AppSettings
         {
-            UploadContainerName = _configuration["UploadContainerName"],
+            UploadContainerName = _configuration["UploadNewFilesContainerName"],
             UploadStorageAccountName = _configuration["UploadStorageAccountName"],
             UploadStorageAccountSasToken = _configuration["UploadStorageAccountSasToken"]
         };
