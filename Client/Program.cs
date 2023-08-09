@@ -29,6 +29,8 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 var baseUrl = builder.Configuration.GetSection("MicrosoftGraph")["BaseUrl"];
 var scopes = builder.Configuration.GetSection("MicrosoftGraph:Scopes")
     .Get<List<string>>();
+var groups = builder.Configuration.GetSection("MicrosoftGraph:Groups")
+    .Get<List<string>>();
 
 builder.Services.AddGraphClient(baseUrl, scopes);
 
@@ -41,7 +43,7 @@ builder.Services.AddMsalAuthentication<RemoteAuthenticationState, CustomUserAcco
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore(options =>
 {
-    options.AddPolicy("GroupMembership", policy => policy.RequireClaim("directoryGroup", "582bfd92-e8bd-4b03-a173-743d269b7a34"));
+    options.AddPolicy("GroupMembership", policy => policy.RequireClaim("directoryGroup", groups.FirstOrDefault<string>()));
 });
 
 await builder.Build().RunAsync();
