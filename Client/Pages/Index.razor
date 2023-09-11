@@ -7,8 +7,13 @@
 @using Azure.Storage.Blobs
 @using Azure.Storage.Blobs.Models
 @using System.Timers
+@using Microsoft.Graph
+@using Microsoft.Graph.Models
+@using Microsoft.Kiota.Abstractions.Authentication
 
 @inject IHttpClientFactory HttpClientFactory
+@inject IAuthenticationProvider AuthenticationProvider
+@inject IConfiguration Configuration
 
 <PageTitle>File Transfer Service (FTS)</PageTitle>
 
@@ -74,6 +79,7 @@
 @code {
     private HttpClient? httpClient;
     private AppSettings? appSettings;
+    private User? currentUser;
 
     private long maxFileSize = 1099511627776;
     private bool exceedsMaxFileSize = false;
@@ -99,6 +105,14 @@
         DelayedHideProgressBarTimer.Elapsed += OnDelayedHideProgressBar;
         httpClient = HttpClientFactory.CreateClient("FileTransferService.Spa.Hosted.ServerAPI");
         appSettings = await httpClient.GetFromJsonAsync<AppSettings>("AppSettings");
+
+
+        var graphClient = new GraphServiceClient(
+            HttpClientFactory.CreateClient("DefaultHttpClient"),
+            AuthenticationProvider,
+            Configuration.GetSection("MicrosoftGraph")["BaseUrl"]
+        );
+        currentUser = await graphClient.Me.GetAsync();
     }
 
     private void OnProgressUpdated(Object sender, ProgressUpdatedEventArgs e)
@@ -167,6 +181,11 @@
                             InitialTransferSize = 1024 * 1024 * 20,
                             MaximumConcurrency = 20,
                             MaximumTransferSize = 1024 * 1024 * 20
+                        },
+                        Metadata = new Dictionary<string, string>
+                        {
+                            { "userprincipalname", currentUser.UserPrincipalName },
+                            { "userid", currentUser.Id }
                         },
                         ProgressHandler = uploadProgressHandler
                     };
