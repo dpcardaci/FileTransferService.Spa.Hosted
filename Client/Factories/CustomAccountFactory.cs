@@ -57,7 +57,9 @@ namespace FileTransferService.Spa.Hosted.Client.Factories
                                 user.OfficeLocation ?? "Not set"));
                         }
 
-                        var requestMemberOf = client.Users[account?.Oid].MemberOf;
+
+
+                        var requestMemberOf = client.Users[account?.Oid].TransitiveMemberOf;
                         var memberships = await requestMemberOf.GetAsync();
 
                         if (memberships is not null && memberships.Value is not null)
