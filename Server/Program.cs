@@ -6,12 +6,30 @@ using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string? appConfigurationConnString = builder.Configuration.GetSection("AppConfigurationConnString").Value;
-if (appConfigurationConnString != null)
+string? uploadAppConfigurationConnString = builder.Configuration.GetSection("UploadAppConfigurationConnString").Value;
+if (uploadAppConfigurationConnString != null)
 {
     builder.Configuration.AddAzureAppConfiguration(options =>
     {
-        options.Connect(appConfigurationConnString)
+        options.Connect(uploadAppConfigurationConnString)
+            .ConfigureKeyVault(kv =>
+            {
+                kv.SetCredential(new DefaultAzureCredential(
+                        new DefaultAzureCredentialOptions
+                        {
+                            AuthorityHost = AzureAuthorityHosts.AzureGovernment
+                        }
+                    ));
+            });
+    });
+}
+
+string? eventAppConfigurationConnString = builder.Configuration.GetSection("EventAppConfigurationConnString").Value;
+if (eventAppConfigurationConnString != null)
+{
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
+        options.Connect(eventAppConfigurationConnString)
             .ConfigureKeyVault(kv =>
             {
                 kv.SetCredential(new DefaultAzureCredential(

@@ -1,0 +1,106 @@
+﻿@using System.Timers
+@inject IHostApiService HostApiService
+
+
+
+    <table class="table mt-5">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Date/Time (UTC)</th>
+                <th scope="col">File Name</th>
+                <th scope="col">Process</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody style="overflow-y: scroll; max-height: 10em;">
+            @if (transferEventsDocuments != null)
+            {
+                @if (transferEventsDocuments.Length > 0)
+                {
+                    @foreach (var transferEventsDocument in transferEventsDocuments)
+                    {
+                        TransferEvent transferEvent = transferEventsDocument.TransferEvents.OrderByDescending(t => t.EventTime).FirstOrDefault();
+                        <tr>
+                            <td style="min-width: 2em;">
+
+                                @if (transferEvent.EventType == "Error")
+                                {
+                                    <span class="oi oi-circle-x text-danger" title="Failure"></span>
+                                }
+                                else if (transferEvent.EventType == "Quarantined")
+                                {
+                                    <span class="oi oi-warning text-danger" title="Failure"></span>
+                                }
+                                else if (GetProcessName(transferEvent) == "Transfer" && transferEvent.EventType == "Completed")
+                                {
+                                    <span class="oi oi-circle-check text-success" title="Success"></span>
+                                }
+                                else
+                                {
+                                    <span class="oi oi-loop-circular text-primary" title="Processing"></span>
+                                }
+                            </td>
+                            <td>@transferEvent.EventTime</td>
+                            <td>@transferEvent.TransferInfo.FileName</td>
+                            <td>@GetProcessName(transferEvent) </td>
+                            <td>@transferEvent.EventType</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center align-middle" style="height:4em;">No transfer events found.</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center align-middle" style="height:4em;">
+                        <div class="spinner-grow text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="spinner-grow text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="spinner-grow text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+@code {
+
+    TransferEventsDocument[]? transferEventsDocuments;
+    Timer PollTransferEventsInterval = new Timer
+        { 
+            Interval = 1000,
+            AutoReset = true,
+            Enabled = true
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        transferEventsDocuments = await HostApiService.GetTransferEventsAsync();
+        PollTransferEventsInterval.Elapsed += (sender, e) => OnPollTransferEventsAsync();
+        PollTransferEventsInterval.Start();
+    }
+
+    protected async Task OnPollTransferEventsAsync()
+    {
+        Console.WriteLine("Polling for transfer events...");
+        transferEventsDocuments = await HostApiService.GetTransferEventsAsync();
+        StateHasChanged();
+    }
+
+    protected string GetProcessName(TransferEvent transferEvent)
+    {
+        return transferEvent.Subject.Substring(transferEvent.Subject.LastIndexOf("/") + 1);
+    }
+}

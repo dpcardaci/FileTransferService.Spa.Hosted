@@ -1,0 +1,37 @@
+﻿
+<div id="alert-container" class="@alertContainerState">
+    <div class="alert alert-@alertType alert-dismissible" role="alert" style="margin-bottom: 0px !important;">
+        @alertMessage
+        <button type="button" class="btn-close" aria-label="Close" @onclick="@Hide"></button>
+    </div>
+</div>
+
+<CascadingValue Value="this">  
+    <div style="height:100%; overflow-y:auto">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    string alertType = "";
+    string alertMessage = "&nbsp;";
+    string alertContainerState = "hide";
+
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+
+    public void Show(string message, string type)
+    {
+        alertType = type;
+        alertMessage = message;
+        alertContainerState = "show";
+        StateHasChanged();
+    }
+
+    public void Hide()
+    {
+        alertContainerState = "hide";
+        StateHasChanged();
+    }
+
+}

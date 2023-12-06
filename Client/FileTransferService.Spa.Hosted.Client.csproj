@@ -16,7 +16,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\FileTransferService.Core\FileTransferService.Core.csproj" />
     <ProjectReference Include="..\Shared\FileTransferService.Spa.Hosted.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FileTransferService.Core">
+      <HintPath>..\..\FileTransferService.Core\bin\Release\net6.0\FileTransferService.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

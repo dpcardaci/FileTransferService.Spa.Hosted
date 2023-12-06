@@ -6,6 +6,7 @@ using FileTransferService.Spa.Hosted.Client.Handlers;
 using FileTransferService.Spa.Hosted.Client.Extensions;
 using FileTransferService.Spa.Hosted.Client.Factories;
 using FileTransferService.Spa.Hosted.Client.Models;
+using FileTransferService.Spa.Hosted.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -45,5 +46,7 @@ builder.Services.AddAuthorizationCore(options =>
 {
     options.AddPolicy("GroupMembership", policy => policy.RequireClaim("directoryGroup", groups.FirstOrDefault<string>()));
 });
+
+builder.Services.AddScoped<IHostApiService, HostApiService>();
 
 await builder.Build().RunAsync();

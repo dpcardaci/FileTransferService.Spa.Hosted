@@ -12,67 +12,84 @@
 @using Microsoft.Kiota.Abstractions.Authentication
 
 @inject IHttpClientFactory HttpClientFactory
+@inject IHostApiService HostApiService
 @inject IAuthenticationProvider AuthenticationProvider
 @inject IConfiguration Configuration
 
 <PageTitle>Crucible File Transfer Service (CFTS)</PageTitle>
 
 <div class="mt-2 ps-5 pe-5">
-
-    <div class="mb-3">
-        <label class="mb-1 text-secondary" for="uploadFileInput" id="uploadFileLabel">Select a file to upload <span style="color: crimson;">(Max size 1TB)</span>:</label>
-        <InputFile class="form-control" @key="@(uploadFileInputKey)" id="uploadFileInput" OnChange="@OnFileSelectionChange" disabled="@(isUploading)"></InputFile>
-    </div>
-
-    @if (isUploading)
-    {
-
+    <div style="min-height: 10em; margin-top: 1em;">
         <div class="mb-3">
-            <div class="progress">
-                <div class="progress-bar" style="width: @progressValue">@progressValue</div>
-            </div>
-            <div class="text-end small text-secondary">
-                <span>@bytesTransferred of @currentSelectedFileSize</span>
-            </div>
+            <label class="mb-1 text-secondary" for="uploadFileInput" id="uploadFileLabel">Select a file to upload <span style="color: crimson;">(Max size 1TB)</span>:</label>
+            <InputFile class="form-control" @key="@(uploadFileInputKey)" id="uploadFileInput" OnChange="@OnFileSelectionChange" disabled="@(isUploading)"></InputFile>
         </div>
-    }
 
-    <div class="mb-3 text-secondary">
-        <span>Note: Ensure ingress files do not have file names containing CUI information.</span>
+        @if (isUploading)
+        {
+
+            <div class="mb-3">
+                <div class="progress">
+                    <div class="progress-bar" style="width: @progressValue">@progressValue</div>
+                </div>
+                <div class="text-end small text-secondary">
+                    <span>@bytesTransferred of @currentSelectedFileSize</span>
+                </div>
+            </div>
+        }
+
+        <div class="mb-3 text-secondary">
+            <span>Note: Ensure ingress files do not have file names containing CUI information.</span>
+        </div>
+        <div style="text-align:end">
+            <button class="btn btn-primary" id="uploadFileSubmitButton" type="submit" @onclick="@Upload" disabled="@(!isValid || isUploading)">
+                @if (isUploading)
+                {
+                    <span class="spinner-grow spinner-grow-sm"></span>
+                }
+                Upload
+            </button>
+        </div>
     </div>
-    <div style="text-align:end">
-        <button class="btn btn-primary" id="uploadFileSubmitButton" type="submit" @onclick="@Upload" disabled="@(!isValid || isUploading)">
-            @if (isUploading)
-            {
-                <span class="spinner-grow spinner-grow-sm"></span>
-            }
-            Upload
-        </button>
+    <div style="border-top: #ccc solid 1px; margin-top: 2em; padding-top: 2em;">
+        <TabControl>
+
+            <TabPage Title="General">
+                <div class="d-flex justify-content-around mt-5">
+                    <div class="card" style="width: 18em; min-height: 16em;">
+                        <div class="card-header">Frequently Asked Questions</div>
+                        <div class="card-body">
+                            <p class="card-text text-secondary">Have questions about the Crucible File Transfer Service? Please visit our FAQ by clicking the link below.</p>
+                            <NavLink class="nav-link card-link" href="faq">FAQ</NavLink>
+                        </div>
+                    </div>
+                    <div class="card" style="width: 18em; min-height: 16em;">
+                        <div class="card-header">User's Guide</div>
+                        <div class="card-body">
+                            <p class="card-text text-secondary">Want detailed guidance on the use of the Crucible File Transfer Service? Please download the "User's Guide'" by clicking the link below.</p>
+                            <a href="./Downloads/User Guide.pdf" download class="card-link">Download User's Guide</a>
+                        </div>
+                    </div>
+                    <div class="card" style="width: 18em; min-height: 16em;">
+                        <div class="card-header">Report an Issue</div>
+                        <div class="card-body">
+                            <p class="card-text text-secondary">Did you run in to an issue? Please message the TC support channel using the "@@tchelp" tag.</p>
+                            <a href="https://chat.il4.dso.mil/usaf-76-sweg/channels/tcsupport" class="card-link">Message support</a>
+                        </div>
+                    </div>
+                </div>
+
+            </TabPage>
+
+            <TabPage Title="Transfers">
+
+                <TransferEventsList></TransferEventsList>
+
+            </TabPage>
+
+        </TabControl>
     </div>
 
-    <div class="d-flex justify-content-around mt-5">
-        <div class="card" style="width: 18em; min-height: 16em;">
-            <div class="card-header">Frequently Asked Questions</div>
-            <div class="card-body">
-                <p class="card-text text-secondary">Have questions about the Crucible File Transfer Service? Please visit our FAQ by clicking the link below.</p>
-                <NavLink class="nav-link card-link" href="faq">FAQ</NavLink>
-            </div>
-        </div>
-        <div class="card" style="width: 18em; min-height: 16em;">
-            <div class="card-header">User's Guide</div>
-            <div class="card-body">
-                <p class="card-text text-secondary">Want detailed guidance on the use of the Crucible File Transfer Service? Please download the "User's Guide'" by clicking the link below.</p>
-                <a href="./Downloads/User Guide.pdf" download class="card-link">Download User's Guide</a>
-            </div>
-        </div>
-        <div class="card" style="width: 18em; min-height: 16em;">
-            <div class="card-header">Report an Issue</div>
-            <div class="card-body">
-                <p class="card-text text-secondary">Did you run in to an issue? Please the TC support channel using the "@@tchelp" tag.</p>
-                <a href="https://chat.il4.dso.mil/usaf-76-sweg/channels/tcsupport" class="card-link">Message support</a>
-            </div>
-        </div>
-    </div>
 </div>
 
 
@@ -103,9 +120,7 @@
     protected override async Task OnInitializedAsync()
     {
         DelayedHideProgressBarTimer.Elapsed += OnDelayedHideProgressBar;
-        httpClient = HttpClientFactory.CreateClient("FileTransferService.Spa.Hosted.ServerAPI");
-        appSettings = await httpClient.GetFromJsonAsync<AppSettings>("AppSettings");
-
+        appSettings = await HostApiService.GetAppSettingsAsync();
 
         var graphClient = new GraphServiceClient(
             HttpClientFactory.CreateClient("DefaultHttpClient"),
@@ -114,6 +129,9 @@
         );
         currentUser = await graphClient.Me.GetAsync();
     }
+
+    [CascadingParameter]
+    public AlertControl? Alert { get; set; }
 
     private void OnProgressUpdated(Object sender, ProgressUpdatedEventArgs e)
     {
@@ -185,12 +203,16 @@
                         Metadata = new Dictionary<string, string>
                         {
                             { "userprincipalname", currentUser.UserPrincipalName },
-                            { "userid", currentUser.Id }
+                            { "userid", currentUser.Id },
+                            { "originationdatetime", DateTime.UtcNow.ToString() },
+                            { "transferid", Guid.NewGuid().ToString() },
+                            { "destinationimpactlevel", EnvironmentImpactLevel.IL5.ToString() }
                         },
                         ProgressHandler = uploadProgressHandler
                     };
 
                 isUploading = true;
+                Alert?.Show("Please do not close or refresh the browser until the upload is complete.", "warning");
                 await blobClient.UploadAsync(currentFile.OpenReadStream(maxFileSize), blobUploadOptions);
                 Reset();
 
@@ -201,11 +223,6 @@
         {
             Console.WriteLine(ex.Message);
         }
-    }
-
-    private async Task<AppSettings?> GetAppSettingsAsync()
-    {
-        return await httpClient.GetFromJsonAsync<AppSettings>("AppSettings");
     }
 
     private bool Validate(IBrowserFile file)
@@ -228,6 +245,7 @@
         currentFile = null;
         exceedsMaxFileSize = false;
         isValid = false;
+        Alert?.Hide();
 
         DelayedHideProgressBarTimer.Start();
 
