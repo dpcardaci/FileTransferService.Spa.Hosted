@@ -26,19 +26,19 @@
 
                                 @if (transferEvent.EventType == "Error")
                                 {
-                                    <span class="oi oi-circle-x text-danger" title="Failure"></span>
+                                    <i class="oi oi-circle-x text-danger" title="Failure"></i>
                                 }
                                 else if (transferEvent.EventType == "Quarantined")
                                 {
-                                    <span class="oi oi-warning text-danger" title="Failure"></span>
+                                    <i class="oi oi-warning text-danger" title="Failure"></i>
                                 }
                                 else if (GetProcessName(transferEvent) == "Transfer" && transferEvent.EventType == "Completed")
                                 {
-                                    <span class="oi oi-circle-check text-success" title="Success"></span>
+                                    <i class="oi oi-circle-check text-success" title="Success"></i>
                                 }
                                 else
                                 {
-                                    <span class="oi oi-loop-circular text-primary" title="Processing"></span>
+                                    <i class="oi oi-loop-circular text-primary" title="Processing"></i>
                                 }
                             </td>
                             <td>@transferEvent.EventTime</td>
@@ -73,7 +73,6 @@
             }
         </tbody>
     </table>
-
 
 @code {
 
