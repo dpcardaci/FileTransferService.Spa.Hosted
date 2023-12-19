@@ -47,6 +47,6 @@ builder.Services.AddAuthorizationCore(options =>
     options.AddPolicy("GroupMembership", policy => policy.RequireClaim("directoryGroup", groups.FirstOrDefault<string>()));
 });
 
-builder.Services.AddScoped<IHostApiService, HostApiService>();
+builder.Services.AddSingleton<IHostApiService, HostApiService>();
 
 await builder.Build().RunAsync();

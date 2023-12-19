@@ -9,7 +9,7 @@ namespace FileTransferService.Spa.Hosted.Client.Services
         /// Get all transfer events for the current user
         /// </summary>
         /// <returns>IEnummerable of type TransferEventsDocument objects</returns>
-        Task<TransferEventsDocument[]?> GetTransferEventsAsync();
+        Task<TransferEventsDocument[]?> GetTransferEventsAsync(string username);
 
         /// <summary>
         /// Get AppSettings object

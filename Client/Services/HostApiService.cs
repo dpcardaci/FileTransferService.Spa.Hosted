@@ -1,5 +1,6 @@
 ﻿using FileTransferService.Core;
 using FileTransferService.Spa.Hosted.Shared;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 
@@ -22,9 +23,10 @@ namespace FileTransferService.Spa.Hosted.Client.Services
             return await _httpClient.GetFromJsonAsync<AppSettings>("AppSettings");  
         }
 
-        public async Task<TransferEventsDocument[]?> GetTransferEventsAsync()
+        public async Task<TransferEventsDocument[]?> GetTransferEventsAsync(string username)
         {
-            return await _httpClient.GetFromJsonAsync<TransferEventsDocument[]>("Events");
+            username = WebUtility.UrlEncode(username);
+            return await _httpClient.GetFromJsonAsync<TransferEventsDocument[]>($"Events?username={username}");
         }
     }
 }
