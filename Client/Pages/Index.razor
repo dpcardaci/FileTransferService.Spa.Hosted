@@ -214,29 +214,42 @@
                 isUploading = true;
                 Alert?.Show("Please do not close or refresh the browser until the upload is complete.", "warning");
 
-                uploadCompletedPublisher = new EventGridPublisherClient(
-                    new Uri(_configuration["UploadCompletedTopicUri"]),
-                    new AzureKeyCredential(_configuration["UploadCompletedTopicKey"]));
-
-                TransferInfo transferInfo = new TransferInfo 
+                TransferInfo transferInfo = new TransferInfo
                 {
-                    TransferId = blobUploadOptions.Metadata.Item["transferid"],
-                    OriginatingUserPrincipalName = blobUploadOptions.Metadata.Item["userprincipalname"],
-                    OriginationDateTime = blobUploadOptions.Metadata.Item["originationdatetime"],
+                    TransferId = Guid.Parse(blobUploadOptions.Metadata["transferid"]),
+                    OriginatingUserPrincipalName = blobUploadOptions.Metadata["userprincipalname"],
+                    OriginationDateTime = DateTime.Parse(blobUploadOptions.Metadata["originationdatetime"]),
                     FileName = currentFile.Name,
-                    FilePath = newFilesContainer,
-                    ImpactLevel = destinationImpactLevel
-                };   
+                    FilePath = uploadContainer,
+                    ImpactLevel = (EnvironmentImpactLevel)Enum.Parse(typeof(EnvironmentImpactLevel), blobUploadOptions.Metadata["destinationimpactlevel"]),
+                };
 
-                uploadCompletedEventGridEvent = new EventGridEvent(
+                EventGridPublisherClient uploadInitiatedPublisher = new EventGridPublisherClient(
+                    new Uri(appSettings.UploadInitiatedTopicUri),
+                    new AzureKeyCredential(appSettings.UploadInitiatedTopicKey));
+
+                EventGridEvent uploadInitiatedEventGridEvent = new EventGridEvent(
                     "FileTransferService/Upload",
                     "Initiated",
                     "1.0",
                     transferInfo
                 );
+                await uploadInitiatedPublisher.SendEventAsync(uploadInitiatedEventGridEvent);
 
                 await blobClient.UploadAsync(currentFile.OpenReadStream(maxFileSize), blobUploadOptions);
                 Reset();
+
+                EventGridPublisherClient uploadCompletedPublisher = new EventGridPublisherClient(
+                    new Uri(appSettings.UploadCompletedTopicUri),
+                    new AzureKeyCredential(appSettings.UploadCompletedTopicKey));
+
+                EventGridEvent uploadCompletedEventGridEvent = new EventGridEvent(
+                    "FileTransferService/Upload",
+                    "Completed",
+                    "1.0",
+                    transferInfo
+                );
+                await uploadCompletedPublisher.SendEventAsync(uploadCompletedEventGridEvent);
 
             }
 
