@@ -6,6 +6,7 @@
 @using Azure.Storage
 @using Azure.Storage.Blobs
 @using Azure.Storage.Blobs.Models
+@using Azure.Messaging.EventGrid
 @using System.Timers
 @using Microsoft.Graph
 @using Microsoft.Graph.Models
@@ -191,8 +192,7 @@
                     {
                         HttpHeaders = new BlobHttpHeaders
                         {
-                            ContentType =
-                                            currentFile.ContentType
+                            ContentType = currentFile.ContentType
                         },
                         TransferOptions = new StorageTransferOptions
                         {
@@ -213,6 +213,28 @@
 
                 isUploading = true;
                 Alert?.Show("Please do not close or refresh the browser until the upload is complete.", "warning");
+
+                uploadCompletedPublisher = new EventGridPublisherClient(
+                    new Uri(_configuration["UploadCompletedTopicUri"]),
+                    new AzureKeyCredential(_configuration["UploadCompletedTopicKey"]));
+
+                TransferInfo transferInfo = new TransferInfo 
+                {
+                    TransferId = blobUploadOptions.Metadata.Item["transferid"],
+                    OriginatingUserPrincipalName = blobUploadOptions.Metadata.Item["userprincipalname"],
+                    OriginationDateTime = blobUploadOptions.Metadata.Item["originationdatetime"],
+                    FileName = currentFile.Name,
+                    FilePath = newFilesContainer,
+                    ImpactLevel = destinationImpactLevel
+                };   
+
+                uploadCompletedEventGridEvent = new EventGridEvent(
+                    "FileTransferService/Upload",
+                    "Initiated",
+                    "1.0",
+                    transferInfo
+                );
+
                 await blobClient.UploadAsync(currentFile.OpenReadStream(maxFileSize), blobUploadOptions);
                 Reset();
 
