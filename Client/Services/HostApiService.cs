@@ -28,5 +28,20 @@ namespace FileTransferService.Spa.Hosted.Client.Services
             username = WebUtility.UrlEncode(username);
             return await _httpClient.GetFromJsonAsync<TransferEventsDocument[]>($"Events?username={username}");
         }
+
+        public async Task SendUploadInitiatedEventAsync(TransferInfo transferInfo)
+        {
+            await _httpClient.PostAsJsonAsync<TransferInfo>("Events/Upload/Initiated", transferInfo);
+        }
+
+        public async Task SendUploadCompletedEventAsync(TransferInfo transferInfo)
+        {
+            await _httpClient.PostAsJsonAsync<TransferInfo>("Events/Upload/Completed", transferInfo);
+        }
+
+        public async Task SendUploadErrorEventAsync(TransferError transferError)
+        {
+            await _httpClient.PostAsJsonAsync<TransferError>("Events/Upload/Error", transferError);
+        }
     }
 }

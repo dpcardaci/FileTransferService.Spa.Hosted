@@ -6,7 +6,6 @@
 @using Azure.Storage
 @using Azure.Storage.Blobs
 @using Azure.Storage.Blobs.Models
-@using Azure.Messaging.EventGrid
 @using System.Timers
 @using Microsoft.Graph
 @using Microsoft.Graph.Models
@@ -224,32 +223,10 @@
                     ImpactLevel = (EnvironmentImpactLevel)Enum.Parse(typeof(EnvironmentImpactLevel), blobUploadOptions.Metadata["destinationimpactlevel"]),
                 };
 
-                EventGridPublisherClient uploadInitiatedPublisher = new EventGridPublisherClient(
-                    new Uri(appSettings.UploadInitiatedTopicUri),
-                    new AzureKeyCredential(appSettings.UploadInitiatedTopicKey));
-
-                EventGridEvent uploadInitiatedEventGridEvent = new EventGridEvent(
-                    "FileTransferService/Upload",
-                    "Initiated",
-                    "1.0",
-                    transferInfo
-                );
-                await uploadInitiatedPublisher.SendEventAsync(uploadInitiatedEventGridEvent);
-
+                await HostApiService.SendUploadInitiatedEventAsync(transferInfo);
                 await blobClient.UploadAsync(currentFile.OpenReadStream(maxFileSize), blobUploadOptions);
                 Reset();
-
-                EventGridPublisherClient uploadCompletedPublisher = new EventGridPublisherClient(
-                    new Uri(appSettings.UploadCompletedTopicUri),
-                    new AzureKeyCredential(appSettings.UploadCompletedTopicKey));
-
-                EventGridEvent uploadCompletedEventGridEvent = new EventGridEvent(
-                    "FileTransferService/Upload",
-                    "Completed",
-                    "1.0",
-                    transferInfo
-                );
-                await uploadCompletedPublisher.SendEventAsync(uploadCompletedEventGridEvent);
+                await HostApiService.SendUploadCompletedEventAsync(transferInfo);
 
             }
 

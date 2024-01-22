@@ -28,5 +28,26 @@ namespace FileTransferService.Spa.Hosted.Server.Controllers
             return Ok(JsonSerializer.Serialize(transferEventsDocuments));
         }
 
+        [HttpPost("Upload/Initiated")]
+        public async Task<IActionResult> UploadInitiated([FromBody] TransferInfo transferInfo)
+        {
+            await _eventsService.SendUploadInitiatedEventAsync(transferInfo);
+            return Ok();
+        }
+
+        [HttpPost("Upload/Completed")]
+        public async Task<IActionResult> UploadCompleted([FromBody] TransferInfo transferInfo)
+        {
+            await _eventsService.SendUploadCompletedEventAsync(transferInfo);
+            return Ok();
+        }
+
+        [HttpPost("Upload/Error")]
+        public async Task<IActionResult> UploadError([FromBody] TransferError transferError)
+        {
+            await _eventsService.SendUploadErrorEventAsync(transferError);
+            return Ok();
+        }        
+
     }
 }

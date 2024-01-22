@@ -2,8 +2,9 @@
 @inject IHostApiService HostApiService
 
 
-    <p><em>Note:</em> Transfers may take some time before before appearing below.</p>
-    <table class="table mt-5">
+    <p class="mt-5">Note: Transfers may take some time before appearing below.</p>
+
+    <table class="table mt-1" style="height:80%;">
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -13,7 +14,7 @@
                 <th scope="col">Status</th>
             </tr>
         </thead>
-        <tbody style="overflow-y: scroll; max-height: 8em;">
+        <tbody style="overflow-y: scroll;">
             @if (transferEventsDocuments != null)
             {
                 @if (transferEventsDocuments.Length > 0)

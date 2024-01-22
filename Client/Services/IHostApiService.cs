@@ -16,5 +16,20 @@ namespace FileTransferService.Spa.Hosted.Client.Services
         /// </summary>
         /// <returns>AppSettings object</returns>
         Task<AppSettings?> GetAppSettingsAsync();
+
+        /// <summary>
+        /// Send upload initiated event
+        /// </summary>
+        Task SendUploadInitiatedEventAsync(TransferInfo transferInfo);
+
+        /// <summary>
+        /// Send upload completted event
+        /// </summary>
+        Task SendUploadCompletedEventAsync(TransferInfo transferInfo);
+
+        /// <summary>
+        /// Send upload error event
+        /// </summary>
+        Task SendUploadErrorEventAsync(TransferError transferError);
     }
 }

@@ -27,13 +27,7 @@ public class AppSettingsController : ControllerBase
         {
             UploadContainerName = _configuration["UploadNewFilesContainerName"],
             UploadStorageAccountName = _configuration["UploadStorageAccountName"],
-            UploadStorageAccountSasToken = _configuration["UploadStorageAccountSasToken"],
-            UploadCompletedTopicUri = _configuration["UploadCompletedTopicUri"],
-            UploadCompletedTopicKey = _configuration["UploadCompletedTopicKey"],
-            UploadErrorTopicUri = _configuration["UploadErrorTopicUri"],
-            UploadErrorTopicKey = _configuration["UploadErrorTopicKey"],
-            UploadInitiatedTopicUri = _configuration["UploadInitiatedTopicUri"],
-            UploadInitiatedTopicKey = _configuration["UploadInitiatedTopicKey"]
+            UploadStorageAccountSasToken = _configuration["UploadStorageAccountSasToken"]
         };
     }
 }
