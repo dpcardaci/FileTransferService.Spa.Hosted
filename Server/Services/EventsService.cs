@@ -41,7 +41,7 @@ namespace FileTransferService.Spa.Hosted.Server.Services
         {
            
             IOrderedQueryable<TransferEventsDocument> queryable = _container.GetItemLinqQueryable<TransferEventsDocument>();
-            int count = await queryable.Where(t => t.OriginatingUserPrincipalName == username).CountAsync();
+            int count = await queryable.Where(t => t.OriginatingUserPrincipalName == username || t.OnBehalfOfUserPrincipalName == username).CountAsync();
             TransferEventsDocument[] transferEventsDocuments = new TransferEventsDocument[] { };
 
             if (count != 0)

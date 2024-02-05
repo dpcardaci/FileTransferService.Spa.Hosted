@@ -310,6 +310,7 @@
                 {
                     TransferId = Guid.Parse(blobUploadOptions.Metadata["transferid"]),
                     OriginatingUserPrincipalName = blobUploadOptions.Metadata["userprincipalname"],
+                    OnBehalfOfUserPrincipalName = blobUploadOptions.Metadata["onbehalfofuserprincipalname"],
                     OriginationDateTime = DateTime.Parse(blobUploadOptions.Metadata["originationdatetime"]),
                     FileName = currentFile.Name,
                     FilePath = uploadContainer,
