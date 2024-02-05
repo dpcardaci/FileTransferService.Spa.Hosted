@@ -1,18 +1,16 @@
 ﻿@inherits LayoutComponentBase
 
-<header class="hearder">
+<header class="header">
     <NavMenu />
 </header>
 
+<main class="main" role="main">
+    <AlertControl>
+        <div>
+            @Body
+        </div>
+    </AlertControl>
+</main>
 
-<AlertControl>
-    <main role="main" style="left:10%; right:10%;">
-        @Body
-    </main>
-</AlertControl>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        2023 - Crucible File Transfer Service
-    </div>
-</footer>
+

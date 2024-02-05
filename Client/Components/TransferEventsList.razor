@@ -88,9 +88,9 @@
     [Parameter]
     public string UserPrincipalName  { get; set; } = string.Empty;    
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        PollTransferEventsInterval.Elapsed += (sender, e) => OnPollTransferEventsAsync();
+        PollTransferEventsInterval.Elapsed += async (sender, e) => await OnPollTransferEventsAsync();
         PollTransferEventsInterval.Start();
     }
 

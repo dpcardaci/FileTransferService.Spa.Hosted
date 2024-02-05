@@ -46,7 +46,7 @@ namespace FileTransferService.Spa.Hosted.Server.Services
 
             if (count != 0)
             {
-                FeedIterator<TransferEventsDocument> feedIterator = queryable.Where(t => t.OriginatingUserPrincipalName == username).OrderByDescending(t => t.OriginationDateTime).ToFeedIterator();
+                FeedIterator<TransferEventsDocument> feedIterator = queryable.Where(t => t.OriginatingUserPrincipalName == username || t.OnBehalfOfUserPrincipalName == username).OrderByDescending(t => t.OriginationDateTime).ToFeedIterator();
 
                 while (feedIterator.HasMoreResults)
                 {

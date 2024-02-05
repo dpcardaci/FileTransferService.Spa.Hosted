@@ -10,4 +10,21 @@
     opacity: 1;
 }
 
+#alert-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+#content-container {
+    position: absolute;
+    top: 3rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
 

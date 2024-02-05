@@ -31,7 +31,7 @@ var baseUrl = builder.Configuration.GetSection("MicrosoftGraph")["BaseUrl"];
 var scopes = builder.Configuration.GetSection("MicrosoftGraph:Scopes")
     .Get<List<string>>();
 var groups = builder.Configuration.GetSection("MicrosoftGraph:Groups")
-    .Get<List<string>>();
+    .Get<List<UserGroup>>();
 
 builder.Services.AddGraphClient(baseUrl, scopes);
 
@@ -44,7 +44,7 @@ builder.Services.AddMsalAuthentication<RemoteAuthenticationState, CustomUserAcco
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore(options =>
 {
-    options.AddPolicy("GroupMembership", policy => policy.RequireClaim("directoryGroup", groups.FirstOrDefault<string>()));
+    options.AddPolicy("GroupMembership", policy => policy.RequireClaim("directoryGroup", groups.FirstOrDefault(x => x.Name == "File Transfer Service Users").Id));
 });
 
 builder.Services.AddSingleton<IHostApiService, HostApiService>();

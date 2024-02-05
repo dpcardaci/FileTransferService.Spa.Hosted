@@ -5,8 +5,8 @@
     </div>
 </div>
 
-<CascadingValue Value="this">  
-    <div style="height:100%; overflow-y:auto">
+<CascadingValue Value="this">
+    <div id="content-container">
         @ChildContent
     </div>
 </CascadingValue>
@@ -15,21 +15,39 @@
     string alertType = "";
     string alertMessage = "&nbsp;";
     string alertContainerState = "hide";
+    bool _isShowing = false;
+    bool _isHidden = false;
 
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
+
+    public bool IsShowing
+    {
+        get => _isShowing;
+    }
+
+    public bool IsHidden
+    {
+        get => _isHidden;
+    }
 
     public void Show(string message, string type)
     {
         alertType = type;
         alertMessage = message;
         alertContainerState = "show";
+        _isShowing = true;
+        _isHidden = false;
         StateHasChanged();
     }
 
     public void Hide()
     {
+        alertType = "";
+        alertMessage = " ";
         alertContainerState = "hide";
+        _isHidden = true;
+        _isShowing = false;
         StateHasChanged();
     }
 

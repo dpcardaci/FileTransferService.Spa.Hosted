@@ -10,11 +10,13 @@
 @using Microsoft.Graph
 @using Microsoft.Graph.Models
 @using Microsoft.Kiota.Abstractions.Authentication
+@using FileTransferService.Spa.Hosted.Client.Models
 
 @inject IHttpClientFactory HttpClientFactory
 @inject IHostApiService HostApiService
 @inject IAuthenticationProvider AuthenticationProvider
 @inject IConfiguration Configuration
+@inject IJSRuntime JS
 
 <PageTitle>Crucible File Transfer Service (CFTS)</PageTitle>
 
@@ -38,9 +40,43 @@
             </div>
         }
 
-        <div class="mb-3 text-secondary">
+        <div class="mb-3 text-secondary alert alert-warning">
             <span>Note: Ensure ingress files do not have file names containing CUI information.</span>
         </div>
+
+        @if(hasOnBehalfOfRole)
+        {
+            @if(isAdvancedDisplayed)
+            {
+                <div class="mb-1">
+                    <InputCheckbox class="form-check-input" id="onBehalfOfInputCheckBox" @bind-Value="isOnBehalfOf" disabled="@(isUploading)" @onclick="() => onBehalfOf = String.Empty"></InputCheckbox>
+                    <label class="text-secondary form-check-label" for="onBehalfOfInputCheckBox">On behalf of:</label>
+                </div>
+                <div class="mb-3">
+                    <InputText type="email" class="form-control" list="usersDatalist" id="onBehalfOfInputText" placeholder="User account (john.doe@vdi.mc2.cce.af.mil)" @bind-Value="onBehalfOf" required="@isOnBehalfOf" disabled="@(isUploading || !isOnBehalfOf)" />
+                    <datalist id="usersDatalist">
+                        if (users != null)
+                        {
+                            @foreach (var user in users)
+                            {
+                                <option value="@user.UserPrincipalName">@user.DisplayName</option>
+                            }
+                        }
+                    </datalist>
+                </div>
+                <div>
+                    <a href="" style="text-decoration:none;" @onclick="() => isAdvancedDisplayed = !isOnBehalfOf ? false : true">Hide Advanced</a>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <a href="" style="text-decoration:none;" @onclick="() => isAdvancedDisplayed = true">Show Advanced</a>
+                </div>
+            }
+
+        }
+
         <div style="text-align:end">
             <button class="btn btn-primary" id="uploadFileSubmitButton" type="submit" @onclick="@Upload" disabled="@(!isValid || isUploading)">
                 @if (isUploading)
@@ -97,12 +133,18 @@
     private HttpClient? httpClient;
     private AppSettings? appSettings;
     private User? currentUser;
+    private List<User> users = new List<User>();
+    private GraphServiceClient? graphClient;
 
     private long maxFileSize = 1099511627776;
     private bool exceedsMaxFileSize = false;
 
     private bool isValid = false;
     private bool isUploading = false;
+    private bool isAdvancedDisplayed = false;
+    private bool isOnBehalfOf = false;
+    private bool hasOnBehalfOfRole = false;
+    private string onBehalfOf = "";
     private string progressValue = "0%";
     private string bytesTransferred = "0";
     private string currentSelectedFileSize = "0";
@@ -122,12 +164,38 @@
         DelayedHideProgressBarTimer.Elapsed += OnDelayedHideProgressBar;
         appSettings = await HostApiService.GetAppSettingsAsync();
 
-        var graphClient = new GraphServiceClient(
+        var userGroups = Configuration.GetSection("MicrosoftGraph:Groups").Get<List<UserGroup>>();
+
+        graphClient = new GraphServiceClient(
             HttpClientFactory.CreateClient("DefaultHttpClient"),
             AuthenticationProvider,
             Configuration.GetSection("MicrosoftGraph")["BaseUrl"]
         );
         currentUser = await graphClient.Me.GetAsync();
+        DirectoryObjectCollectionResponse? currentUserDirectoryObjectCollectionResponse = await graphClient.Me.TransitiveMemberOf.GetAsync();
+
+        string privilegedUserGroupId = userGroups.FirstOrDefault(x => x.Name == "File Transfer Service Priviledged Users").Id;
+        hasOnBehalfOfRole = currentUserDirectoryObjectCollectionResponse.Value.Exists(x => x.Id == privilegedUserGroupId);
+
+        var userCollectionResponse = await graphClient.Users
+            .GetAsync(options =>
+                {
+                    options.QueryParameters.Top = 999;
+                    options.QueryParameters.Select = new string[] { "DisplayName", "UserPrincipalName" };
+                }
+            );
+
+        users = userCollectionResponse?.Value;
+
+        var pageIterator = PageIterator<User, UserCollectionResponse>.CreatePageIterator(
+            graphClient,
+            userCollectionResponse,
+            (user) =>
+            {
+                users.Add(user);
+                return true;
+            }
+        );
     }
 
     [CascadingParameter]
@@ -162,6 +230,15 @@
 
     private async Task Upload()
     {
+        if(isOnBehalfOf)
+        {
+            string inputControlId = "onBehalfOfInputText";
+            if (!(await JS.InvokeAsync<bool>("validateOnBehalfOfInputText", inputControlId)))
+            {
+                return;
+            }
+        }
+
         try
         {
             if (appSettings != null
@@ -187,6 +264,20 @@
                     };
                 uploadProgressHandler.ProgressUpdated += OnProgressUpdated;
 
+                string onBehalfOfUserPrincipalName = "";
+                string onBehalfOfUserId = "";
+
+                if (isOnBehalfOf)
+                {
+                    var onBehalfOfUser = await graphClient.Users[onBehalfOf].GetAsync();
+                    if (onBehalfOf == null)
+                    {
+                        throw new Exception("On Behalf Of user not found");
+                    }
+                    onBehalfOfUserPrincipalName = onBehalfOfUser.UserPrincipalName;
+                    onBehalfOfUserId = onBehalfOfUser.Id;
+                }   
+
                 BlobUploadOptions blobUploadOptions = new BlobUploadOptions
                     {
                         HttpHeaders = new BlobHttpHeaders
@@ -203,6 +294,8 @@
                         {
                             { "userprincipalname", currentUser.UserPrincipalName },
                             { "userid", currentUser.Id },
+                            { "onbehalfofuserprincipalname", onBehalfOfUserPrincipalName },
+                            { "onbehalfofuserid", onBehalfOfUserId },
                             { "originationdatetime", DateTime.UtcNow.ToString() },
                             { "transferid", Guid.NewGuid().ToString() },
                             { "destinationimpactlevel", EnvironmentImpactLevel.IL5.ToString() }
@@ -257,6 +350,8 @@
         currentFile = null;
         exceedsMaxFileSize = false;
         isValid = false;
+        isOnBehalfOf = false;
+        onBehalfOf = "";
         Alert?.Hide();
 
         DelayedHideProgressBarTimer.Start();
