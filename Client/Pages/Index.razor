@@ -256,7 +256,7 @@
                 var azureBlobUri = new Uri(path);
 
                 AzureSasCredential sasCredentials = new AzureSasCredential(sasToken);
-                BlobClient blobClient = new BlobClient(azureBlobUri, sasCredentials, new BlobClientOptions());
+                BlobClient blobClient = new BlobClient(azureBlobUri, sasCredentials, new BlobClientOptions() { Retry = { Mode = RetryMode.Exponential, MaxRetries = 100 }});
 
                 UploadProgressHandler uploadProgressHandler = new UploadProgressHandler
                     {
