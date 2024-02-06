@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileTransferService.Spa.Hos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileTransferService.Spa.Hosted.Shared", "Shared\FileTransferService.Spa.Hosted.Shared.csproj", "{B0E04F95-03FE-4F4E-B486-67B1BF686A2C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileTransferService.Core", "..\FileTransferService.Core\FileTransferService.Core.csproj", "{281FF0E9-3986-49CB-A244-4E26638B0DE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileTransferService.Core", "..\FileTransferService.Core\FileTransferService.Core.csproj", "{1020C805-93D1-4F22-B46F-356121DE320C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,18 +56,18 @@ Global
 		{B0E04F95-03FE-4F4E-B486-67B1BF686A2C}.Release|x64.Build.0 = Release|Any CPU
 		{B0E04F95-03FE-4F4E-B486-67B1BF686A2C}.Release|x86.ActiveCfg = Release|Any CPU
 		{B0E04F95-03FE-4F4E-B486-67B1BF686A2C}.Release|x86.Build.0 = Release|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Debug|x64.Build.0 = Debug|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Debug|x86.Build.0 = Debug|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Release|x64.ActiveCfg = Release|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Release|x64.Build.0 = Release|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Release|x86.ActiveCfg = Release|Any CPU
-		{281FF0E9-3986-49CB-A244-4E26638B0DE7}.Release|x86.Build.0 = Release|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Debug|x64.Build.0 = Debug|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Debug|x86.Build.0 = Debug|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Release|x64.ActiveCfg = Release|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Release|x64.Build.0 = Release|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Release|x86.ActiveCfg = Release|Any CPU
+		{1020C805-93D1-4F22-B46F-356121DE320C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
