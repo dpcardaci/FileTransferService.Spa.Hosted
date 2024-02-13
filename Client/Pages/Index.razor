@@ -53,14 +53,18 @@
                     <label class="text-secondary form-check-label" for="onBehalfOfInputCheckBox">On behalf of:</label>
                 </div>
                 <div class="mb-3">
-                    <InputText type="email" class="form-control" list="usersDatalist" id="onBehalfOfInputText" placeholder="User account (john.doe@vdi.mc2.cce.af.mil)" @bind-Value="onBehalfOf" required="@isOnBehalfOf" disabled="@(isUploading || !isOnBehalfOf)" />
+                    <input type="email" class="form-control" list="usersDatalist" id="onBehalfOfInputText" placeholder="Type user name" required="@isOnBehalfOf" disabled="@(isUploading || !isOnBehalfOf)" @oninput="@HandleOnBehalfOfInput" @bind="@onBehalfOf" />
                     <datalist id="usersDatalist">
-                        if (users != null)
+                        @if (users != null && users.Count > 0)
                         {
                             @foreach (var user in users)
                             {
                                 <option value="@user.UserPrincipalName">@user.DisplayName</option>
                             }
+                        }
+                        else
+                        {
+                            <option value="No users found"></option>
                         }
                     </datalist>
                 </div>
@@ -130,7 +134,6 @@
 
 
 @code {
-    private HttpClient? httpClient;
     private AppSettings? appSettings;
     private User? currentUser;
     private List<User> users = new List<User>();
@@ -177,25 +180,6 @@
         string privilegedUserGroupId = userGroups.FirstOrDefault(x => x.Name == "File Transfer Service Priviledged Users").Id;
         hasOnBehalfOfRole = currentUserDirectoryObjectCollectionResponse.Value.Exists(x => x.Id == privilegedUserGroupId);
 
-        var userCollectionResponse = await graphClient.Users
-            .GetAsync(options =>
-                {
-                    options.QueryParameters.Top = 999;
-                    options.QueryParameters.Select = new string[] { "DisplayName", "UserPrincipalName" };
-                }
-            );
-
-        users = userCollectionResponse?.Value;
-
-        var pageIterator = PageIterator<User, UserCollectionResponse>.CreatePageIterator(
-            graphClient,
-            userCollectionResponse,
-            (user) =>
-            {
-                users.Add(user);
-                return true;
-            }
-        );
     }
 
     [CascadingParameter]
@@ -226,6 +210,25 @@
             currentSelectedFileSize = e.File.Size.ToString();
             currentFile = e.File;
         }
+    }
+
+    private async Task HandleOnBehalfOfInput(ChangeEventArgs e)
+    {
+        string filter = e.Value?.ToString();
+        if(string.IsNullOrEmpty(filter))
+        {
+            users.Clear();
+            return;
+        }
+        var userCollectionResponse = await graphClient.Users
+            .GetAsync(options =>
+                {
+                    options.QueryParameters.Top = 50;
+                    options.QueryParameters.Select = new string[] { "DisplayName", "UserPrincipalName" };
+                    options.QueryParameters.Filter = $"startswith(DisplayName, '{filter}')";
+                }
+            );
+        users = userCollectionResponse?.Value;
     }
 
     private async Task Upload()
