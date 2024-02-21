@@ -225,7 +225,7 @@
                 {
                     options.QueryParameters.Top = 50;
                     options.QueryParameters.Select = new string[] { "DisplayName", "UserPrincipalName" };
-                    options.QueryParameters.Filter = $"startswith(DisplayName, '{filter}')";
+                    options.QueryParameters.Filter = $"startswith(DisplayName, '{filter}') or startswith(UserPrincipalName, '{filter}') or startswith(Surname, '{filter}')";
                 }
             );
         users = userCollectionResponse?.Value;
